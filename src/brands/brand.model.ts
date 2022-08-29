@@ -4,8 +4,12 @@ import { Device } from "src/devices/device.model";
 import { TypeBrand } from "src/types/typeBrand.model";
 import { Type } from "src/types/types.model";
 
+interface BrandCreationAttrs {
+  nmae: string
+}
+
 @Table({tableName: "brands"})
-export class Brand extends Model {
+export class Brand extends Model<Brand, BrandCreationAttrs> {
   @Column({type: DataType.INTEGER, unique: true, autoIncrement: true, primaryKey: true })
   id: number;
 

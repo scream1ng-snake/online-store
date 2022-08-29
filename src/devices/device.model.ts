@@ -1,3 +1,4 @@
+import { Blob } from "buffer";
 import { BelongsTo, BelongsToMany, ForeignKey, HasMany, HasOne, Model } from "sequelize-typescript";
 import { Column, DataType, Table } from "sequelize-typescript";
 import { Brand } from "src/brands/brand.model";
@@ -7,8 +8,19 @@ import { DeviceInfo } from "src/deviceInfo/deviceInfo.model";
 import { Rating } from "src/ratings/rating.model";
 import { Type } from "src/types/types.model";
 
+
+interface DeviceCreationAttrs {
+  name: string,
+  price: number,
+  brandId: number,
+  typeId: number,
+  image?: string,
+  info?: DeviceInfo[]
+}
+
+
 @Table({tableName: "devices"})
-export class Device extends Model {
+export class Device extends Model<Device, DeviceCreationAttrs> {
   @Column({type: DataType.INTEGER, unique: true, autoIncrement: true, primaryKey: true })
   id: number;
 

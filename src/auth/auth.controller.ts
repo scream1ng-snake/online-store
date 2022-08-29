@@ -15,10 +15,10 @@ export class AuthController {
   @Post("/registration")
   @UseInterceptors(FileInterceptor("image"))
   async registration(@Body() userDto: CreateUserDto, @Res({ passthrough: true }) response: Response, @UploadedFile() image?: Blob) {
-    userDto = {...userDto, image: image}
+    userDto = {...userDto, image: image};
     const userData = await this.authService.registration(userDto);
     response.cookie("refreshToken", userData.refreshToken, {maxAge: 15 * 24 * 60 * 60 * 1000, httpOnly: true});
-    return userData;
+    return userData; 
   }
 
   @Post("/login")
@@ -38,7 +38,7 @@ export class AuthController {
   @Get("/activate/:link")
   activate(@Param('link') link: string, @Res({ passthrough: true }) response: Response) {
     this.authService.activate(link)
-    return response.redirect(`${process.env.FRONT_URL}`)
+    // return response.redirect(`${process.env.FRONT_URL}`)
   }
 
   @Get("/refresh")

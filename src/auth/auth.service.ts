@@ -99,7 +99,7 @@ export class AuthService {
   async activate(activationLink: string) {
     const user = await this.userRepository.findOne({where: {activationLink}});
     if (!user) {
-      throw new HttpException("Некоректнная ссылка активации", HttpStatus.BAD_REQUEST);
+      return new HttpException("Некоректнная ссылка активации", HttpStatus.BAD_REQUEST);
     }
     user.isActivated = true;
     user.save();

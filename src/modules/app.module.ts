@@ -27,6 +27,8 @@ import { ServeStaticModule } from "@nestjs/serve-static";
 
 @Module({
   imports: [
+
+    // для отдачи статики
     ServeStaticModule.forRoot({
       rootPath: path.resolve(__dirname, '..', 'static'),
     }),

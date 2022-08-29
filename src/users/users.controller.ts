@@ -15,7 +15,7 @@ export class UsersController {
 
   @Roles('ADMIN')
   @UseGuards(RolesGuard)
-  @Post()
+  @Post() 
   @UseInterceptors(FileInterceptor("image"))
   create(@Body() userDto: CreateUserDto,  @UploadedFile() image?: Blob) {
     userDto = {...userDto, image: image}

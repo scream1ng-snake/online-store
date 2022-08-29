@@ -2,8 +2,14 @@ import { BelongsTo, BelongsToMany, ForeignKey, HasMany, HasOne, Model } from "se
 import { Column, DataType, Table } from "sequelize-typescript";
 import { Device } from "src/devices/device.model";
 
+interface InfoCreationAttrs {
+  title: string,
+  description: string,
+  deviceId: number
+}
+
 @Table({tableName: "device_info"})
-export class DeviceInfo extends Model {
+export class DeviceInfo extends Model<DeviceInfo, InfoCreationAttrs> {
   @Column({type: DataType.INTEGER, unique: true, autoIncrement: true, primaryKey: true })
   id: number;
 

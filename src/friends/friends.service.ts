@@ -9,7 +9,6 @@ export function Paginate(page: number = 1, limit: number = 10) {
     throw new HttpException("Неверные параметры пагинации", HttpStatus.BAD_REQUEST)
   }
   return {
-    page,
     limit,
     offset: page * limit - limit
   }

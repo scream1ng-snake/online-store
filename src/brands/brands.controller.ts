@@ -1,11 +1,18 @@
-import { Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
+import { BrandsService } from './brands.service';
+import { CreateBrandDto } from './dto/create-brand.dto';
 
 @Controller('brands')
 export class BrandsController {
+  constructor(private brandService: BrandsService) {}
 
   @Get()
-  get() {}
+  get() {
+    return this.brandService.getAll();
+  }
 
   @Post()
-  create() {}
+  create(@Body() dto: CreateBrandDto) {
+    return this.brandService.create(dto);
+  }
 }
