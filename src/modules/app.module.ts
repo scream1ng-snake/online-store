@@ -24,6 +24,7 @@ import { User } from 'src/users/user.model';
 import { UsersModule } from 'src/users/users.module';
 import * as path from "path";
 import { ServeStaticModule } from "@nestjs/serve-static";
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [

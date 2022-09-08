@@ -8,7 +8,7 @@ interface InfoCreationAttrs {
   deviceId: number
 }
 
-@Table({tableName: "device_info"})
+@Table({tableName: "device_info", createdAt: false, updatedAt: false})
 export class DeviceInfo extends Model<DeviceInfo, InfoCreationAttrs> {
   @Column({type: DataType.INTEGER, unique: true, autoIncrement: true, primaryKey: true })
   id: number;
@@ -23,6 +23,4 @@ export class DeviceInfo extends Model<DeviceInfo, InfoCreationAttrs> {
   @Column({type: DataType.INTEGER})
   deviceId: number
 
-  @BelongsTo(() => Device)
-  device: Device
 }

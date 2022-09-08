@@ -12,62 +12,67 @@ export class DevicesService {
     @InjectModel(Device) private deviceRepository: typeof Device,
     @InjectModel(DeviceInfo) private infoRepository: typeof DeviceInfo,
     private fileService: FilesService
-  ) {}
+  ) { }
 
   async create(dto: CreateDeviceDto, image?: Express.Multer.File) {
     let fileName: string = null;
     if (image) {
       fileName = await this.fileService.createFile(image);
     }
-    
-    const device = await this.deviceRepository.create({...dto, image: fileName});
+
+    const device = await this.deviceRepository.create({ ...dto, image: fileName });
 
     if (dto.info) {
-      dto.info.forEach((i) => {
-        this.infoRepository.create({
-          title: i.title,
-          description: i.description,
-          deviceId: device.id
-        })
+      JSON.parse(dto.info.toString()).forEach((i) => {
+        try {
+          this.infoRepository.create({
+            title: i.title,
+            description: i.description,
+            deviceId: device.id
+          })
+        } catch (e) {
+          console.log(e)
+        }
       })
+      
     }
 
     return device;
   }
 
   async getOne(id: number) {
-    return await this.deviceRepository.findOne({where: {id}, include: [{model: DeviceInfo}]});
+    return await this.deviceRepository.findOne({ where: { id }, include: [{ model: DeviceInfo }] });
   }
 
-  async getAll(brandId?: number, typeId?: number) {
-    if(!brandId && !typeId) {
+  async getAll(brandId?: number, typeId?: number, page?: number, limit?: number) {
+    if (!brandId && !typeId) {
       return await this.deviceRepository.findAndCountAll({
-        attributes: ["id", "name"],
-        ...Paginate()
+        attributes: ["id", "name", "price", "image"],
+        ...Paginate(page, limit)
       })
     }
 
-    if(!brandId && typeId) {
+    if (!brandId && typeId) {
       return await this.deviceRepository.findAndCountAll({
-        where: {typeId},
-        attributes: ["id", "name"],
-        ...Paginate()
+        where: { typeId },
+        attributes: ["id", "name", "price", "image"],
+        ...Paginate(page, limit)
       })
     }
 
-    if(brandId && !typeId) {
+    if (brandId && !typeId) {
       return await this.deviceRepository.findAndCountAll({
-        where: {brandId},
-        attributes: ["id", "name"],
-        ...Paginate()
+        where: { brandId },
+        attributes: ["id", "name", "price", "image"],
+        ...Paginate(page, limit)
       })
     }
 
-    if(brandId && typeId) {
+    if (brandId && typeId) {
       return await this.deviceRepository.findAndCountAll({
-        where: {typeId, brandId},
-        attributes: ["id", "name"],
-        ...Paginate()
+        where: { typeId, brandId },
+        attributes: ["id", "name", "price", "image"],
+        ...Paginate(page, limit)
       })
     }
 

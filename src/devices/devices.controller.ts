@@ -14,8 +14,13 @@ export class DevicesController {
   }
 
   @Get()
-  getAll(@Query('brandId') brandId?: number, @Query("typeId") typeId?: number) {
-    return this.deviceService.getAll(brandId, typeId);
+  getAll(
+    @Query("page") page?: number, 
+    @Query("limit") limit?: number,
+    @Query('brandId') brandId?: number, 
+    @Query("typeId") typeId?: number
+  ) {
+    return this.deviceService.getAll(brandId, typeId, page, limit);
   }
 
   @Get("/:id")

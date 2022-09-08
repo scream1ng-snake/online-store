@@ -8,7 +8,7 @@ interface TypeCreationAttrs {
   name: string
 }
 
-@Table({tableName: "types"})
+@Table({tableName: "types", createdAt: false, updatedAt: false})
 export class Type extends Model<Type, TypeCreationAttrs> {
   @Column({type: DataType.INTEGER, unique: true, autoIncrement: true, primaryKey: true })
   id: number;

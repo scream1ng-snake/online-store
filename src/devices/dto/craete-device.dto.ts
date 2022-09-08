@@ -9,5 +9,7 @@ export class CreateDeviceDto {
 
   readonly typeId: number;
 
+  readonly description: string;
+
   readonly info?: DeviceInfo[];
 }

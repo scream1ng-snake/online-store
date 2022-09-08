@@ -14,6 +14,7 @@ interface DeviceCreationAttrs {
   price: number,
   brandId: number,
   typeId: number,
+  description: string,
   image?: string,
   info?: DeviceInfo[]
 }
@@ -30,11 +31,14 @@ export class Device extends Model<Device, DeviceCreationAttrs> {
   @Column({type: DataType.INTEGER, allowNull: false})
   price: number;
   
-  @Column({type: DataType.INTEGER, allowNull: true})
+  @Column({type: DataType.INTEGER, defaultValue: 0})
   rating: number;
 
   @Column({type: DataType.STRING, allowNull: false})
   image: string;
+
+  @Column({type: DataType.STRING(1024), allowNull: false})
+  description: string;
 
   @BelongsToMany(() => Cart, () => CartDevices)
   carts: Cart[];

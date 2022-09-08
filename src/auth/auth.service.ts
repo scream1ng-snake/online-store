@@ -32,8 +32,8 @@ export class AuthService {
       link: user.link,
       smallimage: user.smallimage,
       highimage: user.highimage,
-      accessToken: tokens.accessToken,
-      refreshToken: tokens.refreshToken
+      cart: user.cart,
+      ...tokens
     }
     return resp;
   }
@@ -71,8 +71,8 @@ export class AuthService {
       id: user.id, 
       roles: user.roles.map((r) => r.value)
     }
-    const accessToken = this.jwtService.sign(payload);
-    const refreshToken = this.jwtService.sign(payload, {expiresIn: "15d", secret: "SECRET"})
+    const accessToken = this.jwtService.sign(payload, {expiresIn: "1h", secret: "SECRET"});
+    const refreshToken = this.jwtService.sign(payload, {expiresIn: "1d", secret: "SECRET"})
     return {
       accessToken,
       refreshToken
@@ -106,12 +106,12 @@ export class AuthService {
   }
 
   async refresh(refreshToken: string) {
-    if (!refreshToken) {throw new HttpException("Не авторизован", HttpStatus.UNAUTHORIZED)};
+    if (!refreshToken || refreshToken === "null") {throw new HttpException("Не авторизован", HttpStatus.UNAUTHORIZED)};
     const user = await this.validateRefreshToken(refreshToken);
-    const userData = await this.userRepository.findByPk(user.id)
+    const userData = await this.userService.getUsersByEmail(user.email);
     const tokenData = await this.tokenRepository.findOne({where: {refreshToken}});
     if(!userData || !tokenData) {throw new HttpException("Не авторизован", HttpStatus.UNAUTHORIZED)};
-    const newTokens =  this.generateToken(userData);
+    const newTokens = this.generateToken(userData);
     await this.saveToken(userData.id, newTokens.refreshToken);
     return newTokens;
   };

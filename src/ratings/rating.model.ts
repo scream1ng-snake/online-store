@@ -3,7 +3,7 @@ import { Column, DataType, Table } from "sequelize-typescript";
 import { Device } from "src/devices/device.model";
 import { User } from "src/users/user.model";
 
-@Table({tableName: "ratings"})
+@Table({tableName: "ratings", createdAt: false, updatedAt: false})
 export class Rating extends Model {
   @Column({type: DataType.INTEGER, unique: true, autoIncrement: true, primaryKey: true })
   id: number;

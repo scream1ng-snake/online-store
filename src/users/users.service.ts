@@ -1,5 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
+import { CartsService } from 'src/carts/carts.service';
 import { FilesService } from 'src/files/files.service';
 import { Role } from 'src/roles/roles.model';
 import { RolesService } from 'src/roles/roles.service';
@@ -12,9 +13,10 @@ import { User } from './user.model';
 export class UsersService {
   constructor(@InjectModel(User) private userRipository: typeof User, 
     private roleService: RolesService,
-    private filesService: FilesService) {}
+    private filesService: FilesService,
+    private cartService: CartsService) {}
 
-  async createUser(dto: CreateUserDto) {
+  async createUser(dto: CreateUserDto) { 
     const {email, password, username, activationLink} = {...dto}
     const user = await this.userRipository.create({email, password, username, activationLink});
     if (!dto.image) {
@@ -28,6 +30,7 @@ export class UsersService {
 
     const role = await this.roleService.getRoleByValue("USER");
     await user.$set("roles", [role.id]);
+    await this.cartService.create(user.id);
     await user.save();
     user.roles = [role];
     return user;
@@ -42,7 +45,7 @@ export class UsersService {
   }
 
   async getUsersByEmail(email: string) {
-    const user = await this.userRipository.findOne({where: {email}, include: {all: true}});
+    const user = await this.userRipository.findOne({where: {email}, include: {model: Role}}); // include: {all: true}
     return user;
   }
 
