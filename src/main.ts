@@ -1,30 +1,31 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './modules/app.module';
+import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
 import { ValidationPipe } from '@nestjs/common';
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT;
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  try {
+    const app = await NestFactory.create(AppModule);
 
-  app.useGlobalPipes(new ValidationPipe())
-  app.use(cookieParser()); 
-  app.enableCors({
-    "origin": "http://localhost:3000",
-    "methods": "GET,PUT,POST,DELETE",
-    "preflightContinue": false,
-    "optionsSuccessStatus": 200,
-    "credentials": true
+    app.useGlobalPipes(new ValidationPipe())
+    app.use(cookieParser());
+    app.enableCors({
+      "origin": process.env.CORS_ORIGIN,
+      "methods": process.env.CORS_METHODS,
+      "credentials": true,
+      "preflightContinue": false,
+      "optionsSuccessStatus": 200,
+    });
+
+    await app.listen(PORT, () =>
+      console.log(`App started in localhost:${PORT}`)
+    );
+  } catch (e) {
+    console.log(e)
   }
-  );
-
-  await app.listen(PORT, () => 
-    console.log(`App started in localhost:${PORT}`)
-  );
 }
-
-
 
 bootstrap();
 

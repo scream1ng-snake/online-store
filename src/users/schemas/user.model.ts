@@ -1,13 +1,12 @@
 import { BelongsToMany, HasMany, HasOne, Model } from "sequelize-typescript";
 import { Column, DataType, Table } from "sequelize-typescript";
-import { Token } from "src/auth/token.model";
-import { Cart } from "src/carts/cart.model";
-import { Folowers } from "src/friends/friends.model";
-import { Rating } from "src/ratings/rating.model";
-import { Role } from "src/roles/roles.model";
-import { UserRoles } from "src/roles/user-roles.model";
+import { Token } from "src/auth/schemas/token.model";
+import { Cart } from "src/carts/schemas/cart.model";
+import { Rating } from "src/ratings/schemas/rating.model";
+import { Role } from "src/roles/schemas/roles.model";
+import { UserRoles } from "src/roles/schemas/user-roles.model";
 
-interface UserCreationAttrs {
+interface IUser {
   email: string;
   username: string;
   password: string;
@@ -17,7 +16,7 @@ interface UserCreationAttrs {
 
 
 @Table({tableName: "users"})
-export class User extends Model<User, UserCreationAttrs> {
+export class User extends Model<User, IUser> {
   @Column({type: DataType.INTEGER, unique: true, autoIncrement: true, primaryKey: true })
   id: number;
 
@@ -67,18 +66,5 @@ export class User extends Model<User, UserCreationAttrs> {
   roles: Role[];
 
   @HasOne(() => Token)
-  tokens: Token;
-
-  // у пользователя есть много друзей (подписок и подписчиков)
-  // у пользователя есть подписки
-  @BelongsToMany(() => User, {through: () => Folowers, as: 'Follows', foreignKey: "senderId", otherKey: "recipientId"})
-  follows: User[];
-
-  // у пользователя есть подписчики
-  @BelongsToMany(() => User, {through: () => Folowers, as: 'Followers', foreignKey: "recipientId", otherKey: "senderId"})
-  followers: User[];
-
-  // ассоциаиция с промежуточной таблицей, для выполнения запросов с большой вложенностью
-  @HasMany(() => Folowers, {as: "_Follows"})
-  user_folowers: Folowers[]
+  tokens: Token; 
 }

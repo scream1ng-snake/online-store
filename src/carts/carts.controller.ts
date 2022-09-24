@@ -16,6 +16,7 @@ export class CartsController {
     @Param("id") id: number,
     @Body() updateCartDto: UpdateCartDto
   ) {
+    console.log(updateCartDto, id)
     return await this.cartService.update(updateCartDto, id);
   }
 }

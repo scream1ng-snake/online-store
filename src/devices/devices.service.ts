@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { DeviceInfo } from 'src/deviceInfo/deviceInfo.model';
+import { DeviceInfo } from 'src/devices/schemas/deviceInfo.model';
 import { FilesService } from 'src/files/files.service';
-import { Paginate } from 'src/friends/friends.service';
-import { Device } from './device.model';
+import { Paginate } from 'src/utils';
+import { Device } from './schemas/device.model';
 import { CreateDeviceDto } from './dto/craete-device.dto';
 
 @Injectable()
@@ -24,19 +24,13 @@ export class DevicesService {
 
     if (dto.info) {
       JSON.parse(dto.info.toString()).forEach((i) => {
-        try {
-          this.infoRepository.create({
-            title: i.title,
-            description: i.description,
-            deviceId: device.id
-          })
-        } catch (e) {
-          console.log(e)
-        }
+        this.infoRepository.create({
+          title: i.title,
+          description: i.description,
+          deviceId: device.id
+        })
       })
-      
     }
-
     return device;
   }
 

@@ -1,13 +1,13 @@
-import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid'
-import { User } from 'src/users/user.model';
+import { User } from 'src/users/schemas/user.model';
 import { MailService } from 'src/mail/mail.service';
 import { InjectModel } from '@nestjs/sequelize';
-import { Token } from './token.model';
+import { Token } from './schemas/token.model';
 import { LoginUserDto } from 'src/users/dto/login-user.dto';
 
 @Injectable()
@@ -21,47 +21,37 @@ export class AuthService {
   ) {}
 
 
-  async login(userDto: LoginUserDto) {
-    const user = await this.validateUser(userDto);
+  async login(dto: LoginUserDto) {
+    const user = await this.validateUser(dto);
     const tokens = this.generateToken(user);
     await this.saveToken(user.id, tokens.refreshToken);
-    let resp = {
-      id: user.id,
-      username: user.username,
-      email: user.email,
-      link: user.link,
-      smallimage: user.smallimage,
-      highimage: user.highimage,
-      cart: user.cart,
-      ...tokens
-    }
-    return resp;
+    return tokens;
   }
 
 
-  async registration(userDto: CreateUserDto) {
-    const candidate = await this.userService.getUsersByEmail(userDto.email);
+  async registration(dto: CreateUserDto) {
+    const candidate = await this.userService.getUsersByEmail(dto.email);
     if (candidate) {
-      throw new HttpException(`Пользователь с email ${userDto.email} существует`, HttpStatus.BAD_REQUEST);
+      throw new HttpException(`Пользователь с email ${dto.email} существует`, HttpStatus.BAD_REQUEST);
     };
-    const hashPassword = await bcrypt.hash(userDto.password, 5);
+    const hashPassword = await bcrypt.hash(dto.password, 3);
     const activationLink = uuidv4();
-    const user = await this.userService.createUser({...userDto, password: hashPassword, activationLink});
-    await this.mailService.sendActivationMail(userDto.email, `${process.env.API_URL}/auth/activate/${activationLink}`);
+    const user = await this.userService.createUser({...dto, password: hashPassword, activationLink});
+    await this.mailService.sendActivationMail(dto.email, `${process.env.API_URL}/auth/activate/${activationLink}`);
     const tokens = this.generateToken(user);
     await this.saveToken(user.id, tokens.refreshToken);
-    return {...tokens, user}
+    return tokens
   }
 
 
-  private async saveToken(user: number, refreshToken: string) {
-    const tokenData = await this.tokenRepository.findOne({where: {user}})
+  private async saveToken(userId: number, token: string) {
+    const tokenData = await this.tokenRepository.findOne({where: {userId}})
     if (tokenData) {
-      tokenData.refreshToken = refreshToken;
+      tokenData.token = token;
       return tokenData.save();
     };
-    const token = await this.tokenRepository.create({user: user, refreshToken: refreshToken});
-    return token;
+    const newToken = await this.tokenRepository.create({userId, token});
+    return newToken;
   }
 
 
@@ -71,20 +61,18 @@ export class AuthService {
       id: user.id, 
       roles: user.roles.map((r) => r.value)
     }
-    const accessToken = this.jwtService.sign(payload, {expiresIn: "1h", secret: "SECRET"});
-    const refreshToken = this.jwtService.sign(payload, {expiresIn: "1d", secret: "SECRET"})
     return {
-      accessToken,
-      refreshToken
-    }
+      accessToken: this.jwtService.sign(payload),
+      refreshToken: this.jwtService.sign(payload, {expiresIn: "15d"})
+    };
   }
 
 
-  private async validateUser(userDto: LoginUserDto) {
-    const user = await this.userService.getUsersByEmail(userDto.email);
-    if (!user) {throw new UnauthorizedException("Неверный email пользователя")};
-    const passwordEquals = await bcrypt.compare(userDto.password, user.password);
-    if (!passwordEquals) {throw new UnauthorizedException("Неверный пароль")};
+  private async validateUser(dto: LoginUserDto) {
+    const user = await this.userService.getUsersByEmail(dto.email);
+    if (!user) {throw new HttpException("Неверный email пользователя", HttpStatus.BAD_REQUEST)};
+    const passwordEquals = await bcrypt.compare(dto.password, user.password);
+    if (!passwordEquals) {throw new HttpException("Неверный пароль", HttpStatus.BAD_REQUEST)};
     if (user && passwordEquals) {
       return user;
     }
@@ -92,8 +80,8 @@ export class AuthService {
   }
 
   
-  async logout(refreshToken: string) {
-    const deleted = await this.tokenRepository.destroy({where: {refreshToken}})
+  async logout(userId: number) {
+    const deleted = await this.tokenRepository.destroy({where: {userId}})
   }
 
   async activate(activationLink: string) {
@@ -105,23 +93,18 @@ export class AuthService {
     user.save();
   }
 
-  async refresh(refreshToken: string) {
-    if (!refreshToken || refreshToken === "null") {throw new HttpException("Не авторизован", HttpStatus.UNAUTHORIZED)};
-    const user = await this.validateRefreshToken(refreshToken);
+  async refresh(token: string) {
+    const user = await this.validateToken(token);
     const userData = await this.userService.getUsersByEmail(user.email);
-    const tokenData = await this.tokenRepository.findOne({where: {refreshToken}});
+    const tokenData = await this.tokenRepository.findOne({where: {token}});
     if(!userData || !tokenData) {throw new HttpException("Не авторизован", HttpStatus.UNAUTHORIZED)};
-    const newTokens = this.generateToken(userData);
-    await this.saveToken(userData.id, newTokens.refreshToken);
-    return newTokens;
+    const { refreshToken, accessToken } = this.generateToken(userData);
+    await this.saveToken(userData.id, refreshToken);
+    return { refreshToken, accessToken };
   };
 
-  async validateAccessToken(token: string) {
-    const userData = this.jwtService.verify(token);
-    return userData;
-  };
-
-  async validateRefreshToken(token: string) {
+  async validateToken(token: string) {
+    if(!token) throw new HttpException("Не авторизован", HttpStatus.UNAUTHORIZED)
     const userData = this.jwtService.verify(token);
     return userData;
   };

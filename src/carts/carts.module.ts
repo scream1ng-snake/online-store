@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { Cart } from './cart.model';
+import { Cart } from './schemas/cart.model';
 import { CartsController } from './carts.controller';
 import { CartsService } from './carts.service';
 

@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { Paginate } from 'src/friends/friends.service';
 import { CreateTypeDto } from './dto/create-type.dto';
-import { Type } from './types.model';
+import { Type } from './schemas/types.model';
 
 @Injectable()
 export class TypesService {
@@ -14,8 +13,7 @@ export class TypesService {
 
   async getAll() {
     return await this.typeRepository.findAndCountAll({
-      attributes: ["id", "name"],
-      ...Paginate()
+      attributes: ["id", "name"]
     });
   }
 }

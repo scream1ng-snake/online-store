@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { DeviceInfo } from 'src/deviceInfo/deviceInfo.model';
+import { DeviceInfo } from 'src/devices/schemas/deviceInfo.model';
 import { FilesModule } from 'src/files/files.module';
-import { Device } from './device.model';
+import { Device } from './schemas/device.model';
 import { DevicesController } from './devices.controller';
 import { DevicesService } from './devices.service';
 

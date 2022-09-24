@@ -1,12 +1,11 @@
-import { Blob } from "buffer";
 import { BelongsTo, BelongsToMany, ForeignKey, HasMany, HasOne, Model } from "sequelize-typescript";
 import { Column, DataType, Table } from "sequelize-typescript";
-import { Brand } from "src/brands/brand.model";
-import { CartDevices } from "src/cartDevices/cart_devices.model";
-import { Cart } from "src/carts/cart.model";
-import { DeviceInfo } from "src/deviceInfo/deviceInfo.model";
-import { Rating } from "src/ratings/rating.model";
-import { Type } from "src/types/types.model";
+import { Brand } from "src/brands/schemas/brand.model";
+import { CartDevices } from "src/carts/schemas/cart_devices.model";
+import { Cart } from "src/carts/schemas/cart.model";
+import { DeviceInfo } from "src/devices/schemas/deviceInfo.model";
+import { Rating } from "src/ratings/schemas/rating.model";
+import { Type } from "src/types/schemas/types.model";
 
 
 interface DeviceCreationAttrs {
@@ -50,16 +49,12 @@ export class Device extends Model<Device, DeviceCreationAttrs> {
   @BelongsTo(() => Type)
   type: Type;
 
-
-
   @ForeignKey(() => Brand)
   @Column({type: DataType.INTEGER})
   brandId: number;
   
   @BelongsTo(() => Brand)
   brand: Brand;
-
-
 
   @HasMany(() => Rating)
   ratings: Rating[];

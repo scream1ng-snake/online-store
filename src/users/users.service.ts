@@ -2,12 +2,12 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { CartsService } from 'src/carts/carts.service';
 import { FilesService } from 'src/files/files.service';
-import { Role } from 'src/roles/roles.model';
+import { Role } from 'src/roles/schemas/roles.model';
 import { RolesService } from 'src/roles/roles.service';
 import { AddRoleDto } from './dto/add-role.dto';
 import { BanUserDto } from './dto/ban-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
-import { User } from './user.model';
+import { User } from './schemas/user.model';
 
 @Injectable()
 export class UsersService {

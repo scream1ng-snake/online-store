@@ -1,4 +1,4 @@
-import { Device } from "src/devices/device.model";
+import { Device } from "src/devices/schemas/device.model";
 
 export class UpdateCartDto {
   readonly devices: Device[];

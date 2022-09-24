@@ -1,6 +1,6 @@
-import { BelongsTo, BelongsToMany, ForeignKey, HasMany, HasOne, Model } from "sequelize-typescript";
+import { ForeignKey, Model } from "sequelize-typescript";
 import { Column, DataType, Table } from "sequelize-typescript";
-import { Device } from "src/devices/device.model";
+import { Device } from "src/devices/schemas/device.model";
 
 interface InfoCreationAttrs {
   title: string,

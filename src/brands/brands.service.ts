@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { Paginate } from 'src/friends/friends.service';
-import { Brand } from './brand.model';
+import { Paginate } from 'src/utils';
+import { Brand } from './schemas/brand.model';
 import { CreateBrandDto } from './dto/create-brand.dto';
 
 @Injectable()
@@ -16,8 +16,7 @@ export class BrandsService {
     const paginate = Paginate();
     return await this.brandRepository.findAndCountAll({
       attributes: ["id", "name"],
-      limit: paginate.limit,
-      offset: paginate.offset
+      ...Paginate()
     });
   }
 }

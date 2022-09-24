@@ -1,37 +1,38 @@
-import { Body, Controller, Get, Param, Post, Redirect, Req, Res, UnauthorizedException, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { AuthService } from './auth.service';
-import { response, Response } from 'express';
-import { Request } from 'express';
+import { Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { LoginUserDto } from 'src/users/dto/login-user.dto';
+import { Cookies } from './decorators/cookie.decorator';
+import { SetCookie } from './decorators/set-cookie.decorator';
+import { ClearCookie } from './decorators/clear-cookie.decorator';
 import { Blob } from 'buffer';
-import { JwtService } from '@nestjs/jwt';
-import { RefreshDto } from './dto/refresh.dto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService, private jwtService: JwtService) { }
+  constructor(private authService: AuthService) {}
 
   @Post("/registration")
   @UseInterceptors(FileInterceptor("image"))
-  async registration(@Body() userDto: CreateUserDto, @UploadedFile() image?: Blob) {
-    userDto = { ...userDto, image: image };
-    const userData = await this.authService.registration(userDto);
-    return userData;
+  async registration(@Body() dto: CreateUserDto, @SetCookie() SetCookie, @UploadedFile() image?: Blob) {
+    const { accessToken, refreshToken } = await this.authService.registration({ ...dto, image });
+    SetCookie("refreshToken", refreshToken, "15d")
+    return {accessToken};
   }
 
   @Post("/login")
-  async login(@Body() userDto: LoginUserDto) {
-    const data = await this.authService.login(userDto);
-    return data;
+  async login(@Body() dto: LoginUserDto, @SetCookie() SetCookie) {
+    const { accessToken, refreshToken }  = await this.authService.login(dto);
+    SetCookie("refreshToken", refreshToken, "15d")
+    return {accessToken};
   }
 
   @Get("/logout")
-  logout(@Req() request: Request, @Res({ passthrough: true }) response: Response) {
-    const { refreshToken } = request.cookies;
-    response.clearCookie('refreshToken')
-    return this.authService.logout(refreshToken)
+  async logout(@Cookies("refreshToken") token: string, @ClearCookie() clearCookie) {
+    const user = await this.authService.validateToken(token)
+    clearCookie('refreshToken')
+    return this.authService.logout(user.id);
   }
 
   @Get("/activate/:link")
@@ -40,9 +41,10 @@ export class AuthController {
     return response.redirect(`${process.env.FRONT_URL}`)
   }
 
-  @Post("/refresh")
-  async refresh(@Req() request: Request, @Body() {refreshToken}: RefreshDto) {
-    const newTokens = await this.authService.refresh(refreshToken.split(" ")[1]);
-    return newTokens;
+  @Get("/refresh")
+  async refresh(@Cookies("refreshToken") token: string, @SetCookie() SetCookie) {
+    const { refreshToken, accessToken } = await this.authService.refresh(token);
+    SetCookie("refreshToken", refreshToken, "15d");
+    return {accessToken};
   }
 }

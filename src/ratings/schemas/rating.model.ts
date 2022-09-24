@@ -1,7 +1,7 @@
 import { BelongsTo, BelongsToMany, ForeignKey, HasMany, HasOne, Model } from "sequelize-typescript";
 import { Column, DataType, Table } from "sequelize-typescript";
-import { Device } from "src/devices/device.model";
-import { User } from "src/users/user.model";
+import { Device } from "src/devices/schemas/device.model";
+import { User } from "src/users/schemas/user.model";
 
 @Table({tableName: "ratings", createdAt: false, updatedAt: false})
 export class Rating extends Model {

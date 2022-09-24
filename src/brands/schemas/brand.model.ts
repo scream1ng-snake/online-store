@@ -1,8 +1,8 @@
-import { BelongsToMany, HasMany, HasOne, Model } from "sequelize-typescript";
+import { BelongsToMany, HasMany, Model } from "sequelize-typescript";
 import { Column, DataType, Table } from "sequelize-typescript";
-import { Device } from "src/devices/device.model";
-import { TypeBrand } from "src/types/typeBrand.model";
-import { Type } from "src/types/types.model";
+import { Device } from "src/devices/schemas/device.model";
+import { TypeBrand } from "src/types/schemas/typeBrand.model";
+import { Type } from "src/types/schemas/types.model";
 
 interface BrandCreationAttrs {
   nmae: string

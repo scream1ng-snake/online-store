@@ -1,8 +1,8 @@
-import { BelongsTo, BelongsToMany, ForeignKey, HasMany, HasOne, Model } from "sequelize-typescript";
+import { BelongsTo, BelongsToMany, ForeignKey, Model } from "sequelize-typescript";
 import { Column, DataType, Table } from "sequelize-typescript";
-import { CartDevices } from "src/cartDevices/cart_devices.model";
-import { Device } from "src/devices/device.model";
-import { User } from "src/users/user.model";
+import { CartDevices } from "src/carts/schemas/cart_devices.model";
+import { Device } from "src/devices/schemas/device.model";
+import { User } from "src/users/schemas/user.model";
 
 @Table({tableName: "carts", createdAt: false, updatedAt: false})
 export class Cart extends Model {
