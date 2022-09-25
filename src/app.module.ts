@@ -22,10 +22,11 @@ import { User } from 'src/users/schemas/user.model';
 import { UsersModule } from 'src/users/users.module';
 import * as path from "path";
 import { ServeStaticModule } from "@nestjs/serve-static";
+import { RubricsModule } from './rubrics/rubrics.module';
 
 @Module({
   imports: [
-    ServeStaticModule.forRoot({rootPath: path.resolve(__dirname, '..', 'static')}),
+    ServeStaticModule.forRoot({rootPath: path.resolve(__dirname, 'static')}),
     ConfigModule.forRoot({envFilePath: '.env'}),
     SequelizeModule.forRoot({
       dialect: 'postgres',
@@ -44,6 +45,7 @@ import { ServeStaticModule } from "@nestjs/serve-static";
     AuthModule,
     RolesModule,
     FilesModule,
+    RubricsModule,
   ],
   controllers: [],
   providers: [],
