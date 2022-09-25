@@ -1,10 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { DeviceInfo } from 'src/devices/schemas/deviceInfo.model';
 import { FilesService } from 'src/files/files.service';
 import { Paginate } from 'src/utils';
 import { Device } from './schemas/device.model';
 import { CreateDeviceDto } from './dto/craete-device.dto';
+import { UpdateDeviceDto } from './dto/update-device.dto';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class DevicesService {
@@ -12,9 +14,9 @@ export class DevicesService {
     @InjectModel(Device) private deviceRepository: typeof Device,
     @InjectModel(DeviceInfo) private infoRepository: typeof DeviceInfo,
     private fileService: FilesService
-  ) { }
+  ) {}
 
-  async create(dto: CreateDeviceDto, image?: Express.Multer.File) {
+  async createDevice(dto: CreateDeviceDto, image?: Express.Multer.File) {
     let fileName: string = null;
     if (image) {
       fileName = await this.fileService.createFile(image);
@@ -35,10 +37,12 @@ export class DevicesService {
   }
 
   async getOne(id: number) {
-    return await this.deviceRepository.findOne({ where: { id }, include: [{ model: DeviceInfo }] });
+    const device = await this.deviceRepository.findOne({ where: { id }, include: [{ model: DeviceInfo }] });
+    if(!device) throw new HttpException("Товара не существует", HttpStatus.BAD_REQUEST);
+    return device;
   }
 
-  async getAll(brandId?: number, typeId?: number, page?: number, limit?: number) {
+  async getAllByParams(brandId?: number, typeId?: number, page?: number, limit?: number) {
     if (!brandId && !typeId) {
       return await this.deviceRepository.findAndCountAll({
         attributes: ["id", "name", "price", "image"],
@@ -69,6 +73,47 @@ export class DevicesService {
         ...Paginate(page, limit)
       })
     }
+  }
 
+  async updateDevice(id: number, dto: UpdateDeviceDto) {
+    const device = await this.deviceRepository.findOne({where: {id}, include: [{ model: DeviceInfo }]});
+    if (!device) throw new HttpException("Товара не существует", HttpStatus.BAD_REQUEST);
+    if(dto.info) {
+      dto.info.forEach(async (i) => {
+        const deviceInfo = await this.infoRepository.findOne({where: {title: i.title, deviceId: device.id}});
+        if (!deviceInfo) {
+          await this.infoRepository.create({
+            title: i.title,
+            description: i.description,
+            deviceId: device.id
+          })
+        } else {
+          deviceInfo.description = i.description
+          await deviceInfo.save();
+        }
+      })
+    }
+    for(let prop in dto) {
+      if(prop !== "info") {
+        device[prop] = dto[prop];
+      }
+    }
+    return await device.save();
+  }
+
+  async deleteDevice(id: number) {
+    const device = await this.deviceRepository.findOne({ where: { id }});
+    if(!device) throw new HttpException("Товара не существует", HttpStatus.BAD_REQUEST);
+    return await this.deviceRepository.destroy({
+      where: {id}
+    })
+  }
+
+  async searchDeviceByName(name: string) {
+    if(name) return await this.deviceRepository.findAndCountAll({
+      where: {
+        name: {[Op.like]: "%" + name + "%"}
+      }
+    })
   }
 }
