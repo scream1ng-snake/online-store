@@ -14,31 +14,33 @@ export class BrandsService {
   }
 
   async getAll() {
-    return await this.brandRepository.findAndCountAll({
+    const brands = await this.brandRepository.findAndCountAll({
       attributes: ["id", "name"]
     });
+    if(!brands) throw new HttpException("Бренды не найдены", HttpStatus.BAD_REQUEST);
+    return brands;
   }
 
   async deleteBrand(id: number) {
-    return await this.brandRepository.destroy({
-      where: {id}
-    })
+    const brand = await this.brandRepository.findOne({where: {id}});
+    if (!brand) throw new HttpException("Бренд не найдены", HttpStatus.BAD_REQUEST);
+    return await brand.destroy();
   }
 
   async updateBrand(id: number, dto: UpdateBrandDto) {
-    const brand = await this.brandRepository.findOne({
-      where: {id}
-    })
-    if(!brand) return new HttpException(`Бренда с id ${id} не существует`, HttpStatus.BAD_REQUEST)
+    const brand = await this.brandRepository.findOne({where: {id}})
+    if(!brand) throw new HttpException(`Бренда с id ${id} не существует`, HttpStatus.BAD_REQUEST)
     brand.name = dto.name;
     return await brand.save();
   }
 
   async searchBrandByName(name: string) {
-    if(name) return await this.brandRepository.findAndCountAll({
-      where: {
-        name: {[Op.like]: "%" + name + "%"}
-      }
-    })
+    if(name) {
+      const brand = await this.brandRepository.findAndCountAll({
+        where: {name: {[Op.like]: "%" + name + "%"}}
+      });
+      if (!brand) throw new HttpException("Бренд не найдены", HttpStatus.BAD_REQUEST);
+      return brand;
+    }
   }
 }

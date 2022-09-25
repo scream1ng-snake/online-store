@@ -9,11 +9,7 @@ export class CartsService {
   constructor(@InjectModel(Cart) private cartRepository: typeof Cart) { }
 
   async get(userId: number) {
-    try {
-      return await this.cartRepository.findOne({ where: { userId }, include: { model: Device, as: "devices", through: { attributes: [] }, attributes: ["id", "name", "price"] } })
-    } catch (e) {
-      return new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR)
-    }
+    return this.getCartById(userId);
   }
 
   async create(userId: number) {
@@ -22,8 +18,7 @@ export class CartsService {
 
   async update(updateCartDto: UpdateCartDto, userId: number) {
     try {
-      const cart = await this.cartRepository.findOne({ where: { userId }, include: { model: Device, as: "devices", through: { attributes: [] }, attributes: ["id", "name", "price"] } })
-      if (!cart) return new HttpException(`Корзина ${userId} не найдена`, HttpStatus.NOT_FOUND);
+      const cart = await this.getCartById(userId);
       cart.devices.map((i) => {
         cart.$remove("devices", i.id)
       })
@@ -32,9 +27,13 @@ export class CartsService {
       })
       return HttpStatus.CREATED
     } catch (e) {
-      return new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR)
+      throw new HttpException("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR)
     }
   }
+
+  private async getCartById(userId: number) {
+    const cart = await this.cartRepository.findOne({ where: { userId }, include: { model: Device, as: "devices", through: { attributes: [] }, attributes: ["id", "name", "price"] } })
+    if (!cart) throw new HttpException("Корзина не найдены", HttpStatus.BAD_REQUEST);
+    return cart
+  }
 }
-// доделать бэкенд:
-// только авторизованные пользователи могут подписываться друг на друга, писать сообщения, оформлять заказ

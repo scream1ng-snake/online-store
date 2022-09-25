@@ -18,9 +18,7 @@ export class DevicesService {
 
   async createDevice(dto: CreateDeviceDto, image?: Express.Multer.File) {
     let fileName: string = null;
-    if (image) {
-      fileName = await this.fileService.createFile(image);
-    }
+    if (image) fileName = await this.fileService.createFile(image);
 
     const device = await this.deviceRepository.create({ ...dto, image: fileName });
 
@@ -37,21 +35,20 @@ export class DevicesService {
   }
 
   async getOne(id: number) {
-    const device = await this.deviceRepository.findOne({ where: { id }, include: [{ model: DeviceInfo }] });
-    if(!device) throw new HttpException("Товара не существует", HttpStatus.BAD_REQUEST);
-    return device;
+    return await this.getDeviceById(id);
   }
 
   async getAllByParams(brandId?: number, typeId?: number, page?: number, limit?: number) {
+    let devices;
     if (!brandId && !typeId) {
-      return await this.deviceRepository.findAndCountAll({
+      devices = await this.deviceRepository.findAndCountAll({
         attributes: ["id", "name", "price", "image"],
         ...Paginate(page, limit)
       })
     }
 
     if (!brandId && typeId) {
-      return await this.deviceRepository.findAndCountAll({
+      devices = await this.deviceRepository.findAndCountAll({
         where: { typeId },
         attributes: ["id", "name", "price", "image"],
         ...Paginate(page, limit)
@@ -59,7 +56,7 @@ export class DevicesService {
     }
 
     if (brandId && !typeId) {
-      return await this.deviceRepository.findAndCountAll({
+      devices = await this.deviceRepository.findAndCountAll({
         where: { brandId },
         attributes: ["id", "name", "price", "image"],
         ...Paginate(page, limit)
@@ -67,19 +64,19 @@ export class DevicesService {
     }
 
     if (brandId && typeId) {
-      return await this.deviceRepository.findAndCountAll({
+      devices = await this.deviceRepository.findAndCountAll({
         where: { typeId, brandId },
         attributes: ["id", "name", "price", "image"],
         ...Paginate(page, limit)
       })
     }
+    if(!devices) throw new HttpException("Товары не найдены", HttpStatus.BAD_REQUEST);
   }
 
   async updateDevice(id: number, dto: UpdateDeviceDto) {
-    const device = await this.deviceRepository.findOne({where: {id}, include: [{ model: DeviceInfo }]});
-    if (!device) throw new HttpException("Товара не существует", HttpStatus.BAD_REQUEST);
+    const device = await this.getDeviceById(id);
     if(dto.info) {
-      dto.info.forEach(async (i) => {
+      JSON.parse(dto.info.toString()).forEach(async (i) => {
         const deviceInfo = await this.infoRepository.findOne({where: {title: i.title, deviceId: device.id}});
         if (!deviceInfo) {
           await this.infoRepository.create({
@@ -102,11 +99,8 @@ export class DevicesService {
   }
 
   async deleteDevice(id: number) {
-    const device = await this.deviceRepository.findOne({ where: { id }});
-    if(!device) throw new HttpException("Товара не существует", HttpStatus.BAD_REQUEST);
-    return await this.deviceRepository.destroy({
-      where: {id}
-    })
+    await this.getDeviceById(id);
+    return await this.deviceRepository.destroy({where: {id}})
   }
 
   async searchDeviceByName(name: string) {
@@ -115,5 +109,11 @@ export class DevicesService {
         name: {[Op.like]: "%" + name + "%"}
       }
     })
+  }
+
+  private async getDeviceById(id: number) {
+    const device = await this.deviceRepository.findOne({where: {id}, include: [{ model: DeviceInfo }]});
+    if(!device) throw new HttpException("Товара не существует", HttpStatus.BAD_REQUEST);
+    return device;
   }
 }

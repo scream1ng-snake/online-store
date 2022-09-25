@@ -14,31 +14,41 @@ export class TypesService {
   }
 
   async getAll() {
-    return await this.typeRepository.findAndCountAll({
+    const types = await this.typeRepository.findAndCountAll({
       attributes: ["id", "name"]
     });
+    if (!types) throw new HttpException("Типы не найдены", HttpStatus.BAD_REQUEST);
+    return types;
   }
 
   async deleteType(id: number) {
-    return await this.typeRepository.destroy({
-      where: {id}
-    })
+    const type = await this.getTypeById(id);
+    return await type.destroy();
   }
 
   async updateType(id: number, dto: UpdateTypeDto) {
-    const type = await this.typeRepository.findOne({
-      where: {id}
-    })
-    if(!type) return new HttpException(`Типа с id ${id} не существует`, HttpStatus.BAD_REQUEST)
+    const type = await this.getTypeById(id);
     type.name = dto.name;
     return await type.save();
   }
 
   async searchTypeByName(name: string) {
-    if(name) return await this.typeRepository.findAndCountAll({
-      where: {
-        name: {[Op.like]: "%" + name + "%"}
-      }
+    if(name) {
+      const type = await this.typeRepository.findAndCountAll({
+        where: {
+          name: {[Op.like]: "%" + name + "%"}
+        }
+      })
+      if (!type) throw new HttpException("Тип не найден", HttpStatus.BAD_REQUEST);
+    }
+    
+  }
+
+  private async getTypeById(id: number) {
+    const type = await this.typeRepository.findOne({
+      where: {id}
     })
+    if(!type) throw new HttpException(`Типа с id ${id} не существует`, HttpStatus.BAD_REQUEST);
+    return type;
   }
 }
