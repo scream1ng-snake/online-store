@@ -11,7 +11,6 @@ import { DeviceInfo } from 'src/devices/schemas/deviceInfo.model';
 import { Device } from 'src/devices/schemas/device.model';
 import { DevicesModule } from 'src/devices/devices.module';
 import { FilesModule } from 'src/files/files.module';
-import { Rating } from 'src/ratings/schemas/rating.model';
 import { Role } from 'src/roles/schemas/roles.model';
 import { RolesModule } from 'src/roles/roles.module';
 import { UserRoles } from 'src/roles/schemas/user-roles.model';
@@ -35,7 +34,7 @@ import { RubricsModule } from './rubrics/rubrics.module';
       username: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DB,
-      models: [User, Cart, CartDevices, Device, DeviceInfo, Type, Brand, TypeBrand, Rating, Role, UserRoles, Token],
+      models: [User, Cart, CartDevices, Device, DeviceInfo, Type, Brand, TypeBrand, Role, UserRoles, Token],
       autoLoadModels: true
     }),
     UsersModule,

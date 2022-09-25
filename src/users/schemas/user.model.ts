@@ -2,7 +2,6 @@ import { BelongsToMany, HasMany, HasOne, Model } from "sequelize-typescript";
 import { Column, DataType, Table } from "sequelize-typescript";
 import { Token } from "src/auth/schemas/token.model";
 import { Cart } from "src/carts/schemas/cart.model";
-import { Rating } from "src/ratings/schemas/rating.model";
 import { Role } from "src/roles/schemas/roles.model";
 import { UserRoles } from "src/roles/schemas/user-roles.model";
 
@@ -37,9 +36,6 @@ export class User extends Model<User, IUser> {
 
   @HasOne(() => Cart)
   cart: Cart
-
-  @HasMany(() => Rating)
-  ratings: Rating[]
   
   @Column({type: DataType.STRING, unique: true, allowNull: true})
   link: string;

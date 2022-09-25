@@ -4,7 +4,6 @@ import { Brand } from "src/brands/schemas/brand.model";
 import { CartDevices } from "src/carts/schemas/cart_devices.model";
 import { Cart } from "src/carts/schemas/cart.model";
 import { DeviceInfo } from "src/devices/schemas/deviceInfo.model";
-import { Rating } from "src/ratings/schemas/rating.model";
 import { Type } from "src/types/schemas/types.model";
 
 
@@ -55,9 +54,6 @@ export class Device extends Model<Device, DeviceCreationAttrs> {
   
   @BelongsTo(() => Brand)
   brand: Brand;
-
-  @HasMany(() => Rating)
-  ratings: Rating[];
 
   @HasMany(() => DeviceInfo)
   info: DeviceInfo[];
