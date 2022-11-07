@@ -1,7 +1,9 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { CartsService } from './carts.service';
 import { UpdateCartDto } from './dto/updateCart.dto';
 
+@UseGuards(JwtAuthGuard)
 @Controller('carts')
 export class CartsController {
   constructor(private cartService: CartsService) {}
@@ -16,7 +18,6 @@ export class CartsController {
     @Param("id") id: number,
     @Body() updateCartDto: UpdateCartDto
   ) {
-    console.log(updateCartDto, id)
     return await this.cartService.update(updateCartDto, id);
   }
 }

@@ -35,12 +35,10 @@ export class BrandsService {
   }
 
   async searchBrandByName(name: string) {
-    if(name) {
-      const brand = await this.brandRepository.findAndCountAll({
-        where: {name: {[Op.like]: "%" + name + "%"}}
-      });
-      if (!brand) throw new HttpException("Бренд не найдены", HttpStatus.BAD_REQUEST);
-      return brand;
-    }
+    const brand = await this.brandRepository.findAndCountAll({
+      where: {name: {[Op.like]: "%" + name + "%"}}
+    });
+    if (!brand) throw new HttpException("Бренд не найдены", HttpStatus.BAD_REQUEST);
+    return brand;
   }
 }

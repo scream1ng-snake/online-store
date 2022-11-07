@@ -22,6 +22,10 @@ import { UsersModule } from 'src/users/users.module';
 import * as path from "path";
 import { ServeStaticModule } from "@nestjs/serve-static";
 import { RubricsModule } from './rubrics/rubrics.module';
+import { OrdersModule } from './orders/orders.module';
+import { Order } from './orders/schemas/orders.model';
+import { OrderDevices } from './orders/schemas/orderDevices.model';
+import { CartsModule } from './carts/carts.module';
 
 @Module({
   imports: [
@@ -34,7 +38,7 @@ import { RubricsModule } from './rubrics/rubrics.module';
       username: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DB,
-      models: [User, Cart, CartDevices, Device, DeviceInfo, Type, Brand, TypeBrand, Role, UserRoles, Token],
+      models: [User, Cart, CartDevices, Device, DeviceInfo, Type, Brand, TypeBrand, Role, UserRoles, Token, Order, OrderDevices],
       autoLoadModels: true
     }),
     UsersModule,
@@ -45,6 +49,8 @@ import { RubricsModule } from './rubrics/rubrics.module';
     RolesModule,
     FilesModule,
     RubricsModule,
+    OrdersModule,
+    CartsModule
   ],
   controllers: [],
   providers: [],

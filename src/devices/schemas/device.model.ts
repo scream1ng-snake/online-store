@@ -5,6 +5,8 @@ import { CartDevices } from "src/carts/schemas/cart_devices.model";
 import { Cart } from "src/carts/schemas/cart.model";
 import { DeviceInfo } from "src/devices/schemas/deviceInfo.model";
 import { Type } from "src/types/schemas/types.model";
+import { Order } from "src/orders/schemas/orders.model";
+import { OrderDevices } from "src/orders/schemas/orderDevices.model";
 
 
 interface DeviceCreationAttrs {
@@ -40,6 +42,9 @@ export class Device extends Model<Device, DeviceCreationAttrs> {
 
   @BelongsToMany(() => Cart, () => CartDevices)
   carts: Cart[];
+
+  @BelongsToMany(() => Order, () => OrderDevices)
+  orders: Order[];
 
   @ForeignKey(() => Type)
   @Column({type: DataType.INTEGER})

@@ -33,15 +33,13 @@ export class TypesService {
   }
 
   async searchTypeByName(name: string) {
-    if(name) {
-      const type = await this.typeRepository.findAndCountAll({
-        where: {
-          name: {[Op.like]: "%" + name + "%"}
-        }
-      })
-      if (!type) throw new HttpException("Тип не найден", HttpStatus.BAD_REQUEST);
-    }
-    
+    const type = await this.typeRepository.findAndCountAll({
+      where: {
+        name: {[Op.like]: "%" + name + "%"}
+      }
+    })
+    if (!type) throw new HttpException("Тип не найден", HttpStatus.BAD_REQUEST);
+    return type
   }
 
   private async getTypeById(id: number) {

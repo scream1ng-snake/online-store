@@ -71,6 +71,7 @@ export class DevicesService {
       })
     }
     if(!devices) throw new HttpException("Товары не найдены", HttpStatus.BAD_REQUEST);
+    return devices
   }
 
   async updateDevice(id: number, dto: UpdateDeviceDto) {
